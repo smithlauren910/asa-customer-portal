@@ -12,11 +12,18 @@ const statusConfig: Record<string, { bg: string; label: string }> = {
   'scheduled': { bg: '#fe9a00', label: 'Scheduled' },
   'delivered': { bg: '#0d7a6e', label: 'Delivered' },
   'open': { bg: '#6b7280', label: 'Open' },
+  'closed': { bg: '#9ca3af', label: 'Closed' },
+  'overdue': { bg: '#c62828', label: 'Overdue' },
+  'paid': { bg: '#0d7a6e', label: 'Paid' },
   'locked': { bg: '#9ca3af', label: 'Locked' },
   'active': { bg: '#0d7a6e', label: 'Active' },
   'blocked': { bg: '#c62828', label: 'Blocked' },
   'upcoming': { bg: '#fe9a00', label: 'Upcoming' },
 };
+
+export function statusLabel(status: string): string {
+  return statusConfig[status]?.label ?? status;
+}
 
 export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
   const config = statusConfig[status] ?? { bg: '#6b7280', label: status };

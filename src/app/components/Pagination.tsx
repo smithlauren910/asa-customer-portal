@@ -34,8 +34,8 @@ export function Pagination({
   const end = Math.min(page * pageSize, totalResults);
 
   return (
-    <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e5e7eb]">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 py-2.5 border-t border-[#e5e7eb]">
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
         <select
           className="border border-[#d1d5db] rounded px-2 py-1 text-[12px] text-[#374151] outline-none focus:border-[#0d7a6e]"
           value={pageSize}

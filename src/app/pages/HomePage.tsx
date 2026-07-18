@@ -1,3 +1,6 @@
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { MessageSquare } from 'lucide-react';
+import { JobIcon, OrderIcon, ShippingIcon, InvoiceIcon } from '../components/icons/TileIcons';
 import { TileCard } from '../components/TileCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { PageHeader } from '../components/PageHeader';
@@ -19,55 +22,31 @@ interface HomePageProps {
   onOpenMessages: () => void;
 }
 
-const SCHEDULE = [
-  {
-    id: 'sched-1',
-    date: 'Mon, Jun 9',
-    status: 'action-required',
-    orderNo: 'PGH26-0312',
-    title: 'Rt. 30 Bridge Rehab — Foundation Rebar',
-    subtitle: 'Fabricated Rebar · 340 items · aSa Steel Fabricators, Murrysville PA',
-    alert: 'Revised structural drawings required before release. Please upload updated sheet S-104 from your engineer of record.',
-    job: 'Rt. 30 Bridge Rehab',
-  },
-  {
-    id: 'sched-2',
-    date: 'Mon, Jun 9',
-    status: 'in-transit',
-    orderNo: 'PGH26-0313',
-    title: 'Rt. 30 Bridge Rehab — Pier Cap Stirrups',
-    subtitle: 'Stirrups & Ties · 112 items · aSa Steel Fabricators, Murrysville PA',
-    alert: null,
-    job: 'Rt. 30 Bridge Rehab',
-  },
-  {
-    id: 'sched-3',
-    date: 'Sun, Jun 14',
-    status: 'confirmed',
-    orderNo: 'PGH26-0319',
-    title: 'Westmoreland Mall Garage — Column Cages',
-    subtitle: 'Fabricated Rebar · 48 items · aSa Steel Fabricators, Murrysville PA',
-    alert: null,
-    job: 'Westmoreland Mall Garage',
-  },
-  {
-    id: 'sched-4',
-    date: 'Sat, Jun 27',
-    status: 'action-required',
-    orderNo: 'PGH26-0318',
-    title: 'Westmoreland Mall Garage — Level 2 Mesh',
-    subtitle: 'Welded Wire Mesh · 80 items · aSa Steel Fabricators, Murrysville PA',
-    alert: 'Pour schedule moved up. Confirm revised delivery window by Jun 12 or order will be rescheduled.',
-    job: 'Westmoreland Mall Garage',
-  },
+const AGING_LABELS: { key: AgingBucket; label: string; color: string }[] = [
+  { key: 'current', label: 'Current', color: '#0d7a6e' },
+  { key: '30', label: '30', color: '#fe9a00' },
+  { key: '60', label: '60', color: '#f2751a' },
+  { key: '90', label: '90+', color: '#c62828' },
 ];
 
-const AGING_LABELS: { key: AgingBucket; label: string }[] = [
-  { key: 'current', label: 'Current' },
-  { key: '30', label: '30' },
-  { key: '60', label: '60' },
-  { key: '90', label: '90+' },
-];
+const UPCOMING_SHIPMENT_STATUSES = ['scheduled', 'confirmed', 'in-transit', 'shipped'];
+
+function timelineBorderColor(status: string): string {
+  switch (status) {
+    case 'confirmed':
+    case 'paid':
+      return '#0d7a6e';
+    case 'in-transit':
+    case 'shipped':
+      return '#2d6cb8';
+    case 'scheduled':
+      return '#fe9a00';
+    case 'overdue':
+      return '#c62828';
+    default:
+      return '#c8c8c8';
+  }
+}
 
 export function HomePage({
   fabricator,
@@ -100,18 +79,53 @@ export function HomePage({
   scopedInvoices.forEach((i) => {
     buckets[agingBucket(i.daysOutstanding)] += i.amount;
   });
+  const invoiceTotal = Object.values(buckets).reduce((sum, v) => sum + v, 0);
+  const pieData = AGING_LABELS.map(({ key, label, color }) => ({ name: label, value: buckets[key], color })).filter(
+    (d) => d.value > 0
+  );
 
   // Messages
   const scopedThreads = THREADS.filter((t) => inScope(t.jobName));
   const unreadMessages = scopedThreads.filter((t) => t.unread).length;
 
-  // Schedule feed
-  const scopedSchedule = SCHEDULE.filter((s) => inScope(s.job));
-  const actionSchedule = scopedSchedule.filter((s) => s.status === 'action-required');
-  const nonActionSchedule = scopedSchedule.filter((s) => s.status !== 'action-required');
-  const sortedSchedule = [...actionSchedule, ...nonActionSchedule];
-  const groupedByDate: Record<string, typeof SCHEDULE> = {};
-  sortedSchedule.forEach((item) => {
+  // Unified upcoming timeline — upcoming shipments + open/overdue invoices, sorted by date
+  interface TimelineItem {
+    id: string;
+    date: string;
+    dateSort: number;
+    kind: 'shipment' | 'invoice';
+    status: string;
+    title: string;
+    subtitle: string;
+  }
+
+  const upcomingShipments: TimelineItem[] = scopedShipments
+    .filter((s) => UPCOMING_SHIPMENT_STATUSES.includes(s.status))
+    .map((s) => ({
+      id: s.id,
+      date: s.date,
+      dateSort: Date.parse(s.date),
+      kind: 'shipment',
+      status: s.status,
+      title: s.ticketNo === '—' ? `${s.jobName} — Shipment Scheduled` : `${s.jobName} — Shipping Ticket ${s.ticketNo}`,
+      subtitle: 'Shipment',
+    }));
+
+  const upcomingInvoices: TimelineItem[] = fabricator.modules.invoices
+    ? scopedInvoices.map((i) => ({
+        id: i.id,
+        date: i.date,
+        dateSort: Date.parse(i.date),
+        kind: 'invoice',
+        status: i.status,
+        title: `${i.jobName} — Invoice ${i.invoiceNo}`,
+        subtitle: `${formatCurrency(i.amountOpen)} open of ${formatCurrency(i.amount)}`,
+      }))
+    : [];
+
+  const timelineItems = [...upcomingShipments, ...upcomingInvoices].sort((a, b) => a.dateSort - b.dateSort);
+  const groupedByDate: Record<string, TimelineItem[]> = {};
+  timelineItems.forEach((item) => {
     if (!groupedByDate[item.date]) groupedByDate[item.date] = [];
     groupedByDate[item.date].push(item);
   });
@@ -123,17 +137,17 @@ export function HomePage({
     <div className="flex-1 flex flex-col bg-[#f5f5f5] min-h-0 overflow-y-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       <PageHeader title={title} fabricatorId={fabricator.id} selectedJob={selectedJob} onJobChange={onJobChange} />
 
-      <div className="px-8 py-6 flex flex-col gap-6">
+      <div className="px-4 sm:px-8 py-4 sm:py-6 flex flex-col gap-6">
         {/* Tiles Row */}
-        <div className="flex gap-4">
-          <TileCard title="Jobs" onClick={onOpenJobs}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <TileCard title="Jobs" icon={JobIcon} onClick={onOpenJobs}>
             <p className="text-[28px] font-semibold text-[#1a1a1a] leading-none">
               {openJobs} <span className="text-[16px] font-normal text-[#6b7280]">open of {jobs.length}</span>
             </p>
             <p className="text-[12px] text-[#6b7280] mt-1">Jobs in scope</p>
           </TileCard>
 
-          <TileCard title="Orders" onClick={onOpenOrders}>
+          <TileCard title="Orders" icon={OrderIcon} onClick={onOpenOrders}>
             <p className="text-[28px] font-semibold text-[#1a1a1a] leading-none">
               {openOrders} <span className="text-[16px] font-normal text-[#6b7280]">open</span>
             </p>
@@ -141,58 +155,74 @@ export function HomePage({
           </TileCard>
 
           {fabricator.modules.shipments ? (
-            <TileCard title="Shipments" onClick={onOpenShipments}>
+            <TileCard title="Shipments" icon={ShippingIcon} onClick={onOpenShipments}>
               <p className="text-[28px] font-semibold text-[#1a1a1a] leading-none">{postedShipments}</p>
               <p className="text-[12px] text-[#6b7280] mt-1">Posted shipments</p>
             </TileCard>
           ) : (
-            <TileCard title="Shipments" variant="disabled" disabledNote={`${fabricator.name} doesn't offer the Shipments module`} />
+            <TileCard title="Shipments" icon={ShippingIcon} variant="disabled" disabledNote={`${fabricator.name} doesn't offer the Shipments module`} />
           )}
 
           {fabricator.modules.invoices ? (
-            <TileCard title="Invoices" onClick={onOpenInvoices}>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                {AGING_LABELS.map(({ key, label }) => (
-                  <div key={key}>
-                    <p className="text-[10px] text-[#9ca3af] uppercase">{label}</p>
-                    <p className="text-[13px] font-semibold text-[#1a1a1a] whitespace-nowrap">{formatCurrency(buckets[key])}</p>
-                  </div>
-                ))}
+            <TileCard title="Invoices" icon={InvoiceIcon} onClick={onOpenInvoices}>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-[52px] h-[52px] shrink-0">
+                  {invoiceTotal > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          innerRadius={14}
+                          outerRadius={26}
+                          paddingAngle={pieData.length > 1 ? 2 : 0}
+                          stroke="none"
+                        >
+                          {pieData.map((entry) => (
+                            <Cell key={entry.name} fill={entry.color} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="w-full h-full rounded-full border-[6px] border-[#e5e7eb]" />
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 w-full">
+                  {AGING_LABELS.map(({ key, label, color }) => (
+                    <div key={key} className="flex items-center gap-1 min-w-0">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      <div className="min-w-0">
+                        <p className="text-[9px] text-[#9ca3af] uppercase leading-none">{label}</p>
+                        <p className="text-[11px] font-semibold text-[#1a1a1a] leading-tight truncate">{formatCurrency(buckets[key])}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </TileCard>
           ) : (
-            <TileCard title="Invoices" variant="disabled" disabledNote={`${fabricator.name} doesn't offer the Invoices module`} />
+            <TileCard title="Invoices" icon={InvoiceIcon} variant="disabled" disabledNote={`${fabricator.name} doesn't offer the Invoices module`} />
           )}
 
-          <TileCard title="Messages" onClick={onOpenMessages}>
+          <TileCard title="Messages" icon={MessageSquare} onClick={onOpenMessages}>
             <p className="text-[28px] font-semibold text-[#1a1a1a] leading-none">{unreadMessages}</p>
             <p className="text-[12px] text-[#6b7280] mt-1">Unread of {scopedThreads.length} messages</p>
           </TileCard>
         </div>
 
-        {/* Upcoming Schedule */}
+        {/* Upcoming Activity */}
         <div>
           <div className="flex items-center justify-between border-b border-[#e8e8e8] pb-2 mb-3">
-            <span className="text-[16px] font-medium text-[#1a1a1a]">Upcoming Schedule</span>
+            <span className="text-[16px] font-medium text-[#1a1a1a]">Upcoming Activity</span>
           </div>
-
-          {actionSchedule.length > 0 && (
-            <div className="flex items-center gap-2 mb-2">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                <circle cx="6.5" cy="6.5" r="5.5" stroke="#C62828" strokeWidth="1.1" />
-                <path d="M6.5 4.33333V6.5" stroke="#C62828" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M6.5 8.66667H6.505" stroke="#C62828" strokeWidth="1.1" strokeLinecap="round" />
-              </svg>
-              <span className="text-[11px] font-semibold text-[#c62828] uppercase tracking-wider">Action Required</span>
-            </div>
-          )}
 
           <div className="flex flex-col gap-4">
             {Object.entries(groupedByDate).map(([date, items]) => (
               <div key={date}>
                 <div className="flex items-center justify-between mb-2 pt-1">
                   <span className="text-[13px] font-medium text-[#1a1a1a]">{date}</span>
-                  <span className="text-[11px] text-[#9e9e9e]">{items.length} {items.length === 1 ? 'order' : 'orders'}</span>
+                  <span className="text-[11px] text-[#9e9e9e]">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -204,21 +234,19 @@ export function HomePage({
                         borderTop: '1px solid #d0d0d0',
                         borderRight: '1px solid #d0d0d0',
                         borderBottom: '1px solid #d0d0d0',
-                        borderLeft: `6px solid ${item.status === 'action-required' ? '#c62828' : item.status === 'in-transit' ? '#2d6cb8' : item.status === 'confirmed' ? '#0d7a6e' : '#c8c8c8'}`,
+                        borderLeft: `6px solid ${timelineBorderColor(item.status)}`,
                       }}
                     >
-                      {item.alert && (
-                        <div
-                          className="px-5 py-2 text-[12px] text-[#c62828]"
-                          style={{ backgroundColor: '#fdecea', borderLeft: 'none', borderBottom: '1px solid #f5c2c2' }}
-                        >
-                          {item.alert}
-                        </div>
-                      )}
                       <div className="pl-5 pr-4 py-3">
                         <div className="flex items-center gap-2 mb-1.5">
                           <StatusBadge status={item.status} />
-                          <span className="text-[12px] font-medium text-[#9e9e9e]">{item.orderNo}</span>
+                          <span className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
+                            {item.kind === 'shipment' ? (
+                              <ShippingIcon size={14} className="text-[#9e9e9e]" />
+                            ) : (
+                              <InvoiceIcon size={14} className="text-[#9e9e9e]" />
+                            )}
+                          </span>
                         </div>
                         <div className="flex items-start justify-between">
                           <div>
@@ -232,8 +260,8 @@ export function HomePage({
                 </div>
               </div>
             ))}
-            {sortedSchedule.length === 0 && (
-              <p className="text-[13px] text-[#9ca3af]">No upcoming schedule items for this job.</p>
+            {timelineItems.length === 0 && (
+              <p className="text-[13px] text-[#9ca3af]">No upcoming shipments or open invoices for this job.</p>
             )}
           </div>
         </div>

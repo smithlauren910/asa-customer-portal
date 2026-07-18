@@ -30,13 +30,13 @@ export function AccountPage() {
     <div className="flex-1 flex flex-col bg-[#f5f5f5] min-h-0 overflow-y-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       <PageHeader title="Account" showFilters={false} />
 
-      <div className="p-8 flex flex-col gap-6">
-      <div className="flex gap-6 items-start">
+      <div className="p-4 sm:p-8 flex flex-col gap-6">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Profile Card */}
-        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm p-6 flex-1 max-w-[720px]">
+        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm p-6 flex-1 max-w-[720px] w-full">
           <h2 className="text-[20px] font-medium text-[#1f2937] mb-4">Profile</h2>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
             <InputField label="First Name" value={firstName} onChange={setFirstName} />
             <InputField label="Last Name" value={lastName} onChange={setLastName} />
             <InputField label="Email" value={email} onChange={setEmail} />
@@ -59,7 +59,7 @@ export function AccountPage() {
         </div>
 
         {/* Account Summary Card */}
-        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm p-6 w-[347px] shrink-0">
+        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm p-6 w-full lg:w-[347px] lg:shrink-0">
           <h2 className="text-[20px] font-medium text-[#1f2937] mb-5">Account Summary</h2>
 
           <div className="flex flex-col gap-5">
@@ -89,7 +89,7 @@ export function AccountPage() {
       <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm p-6 max-w-[720px]">
         <h2 className="text-[16px] font-medium text-[#1f2937] mb-1">Password & Security</h2>
         <p className="text-[13px] text-[#6b7280] mb-4">Manage your password and two-factor authentication settings.</p>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button className="px-4 py-2 rounded-full text-[14px] text-[#1a1a1a] border border-[#d0d0d0] hover:border-[#0d7a6e] hover:text-[#0d7a6e] transition-colors">
             Change Password
           </button>

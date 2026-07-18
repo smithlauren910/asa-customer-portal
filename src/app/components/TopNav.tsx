@@ -1,4 +1,7 @@
+import { MoreVertical } from 'lucide-react';
 import imgLogo from "figma:asset/d6c973a49b3a11fd6b1f8226d69743e93a3fd1d8.png";
+import { CURRENT_USER_NAME } from '../data/currentUser';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const SVG_HOME = "M10 2.5L2.5 8.75V17.5H7.5V12.5H12.5V17.5H17.5V8.75L10 2.5Z";
 const SVG_BELL_BODY = "M2.71833 12.7717C2.60947 12.891 2.53763 13.0394 2.51155 13.1988C2.48546 13.3582 2.50627 13.5217 2.57142 13.6695C2.63658 13.8173 2.74328 13.943 2.87855 14.0312C3.01381 14.1195 3.17182 14.1665 3.33333 14.1667H16.6667C16.8282 14.1667 16.9862 14.1199 17.1216 14.0318C17.2569 13.9437 17.3637 13.8181 17.4291 13.6704C17.4944 13.5227 17.5154 13.3592 17.4895 13.1998C17.4637 13.0404 17.392 12.892 17.2833 12.7725C16.175 11.63 15 10.4158 15 6.66667C15 5.34058 14.4732 4.06881 13.5355 3.13113C12.5979 2.19345 11.3261 1.66667 10 1.66667C8.67392 1.66667 7.40215 2.19345 6.46447 3.13113C5.52678 4.06881 5 5.34058 5 6.66667C5 10.4158 3.82417 11.63 2.71833 12.7717Z";
@@ -12,17 +15,19 @@ interface TopNavProps {
   onHome: () => void;
   onSwitchFabricator: () => void;
   onOpenAccount: () => void;
+  onOpenAlerts: () => void;
+  unreadAlertCount: number;
 }
 
-export function TopNav({ fabricatorName, onHome, onSwitchFabricator, onOpenAccount }: TopNavProps) {
+export function TopNav({ fabricatorName, onHome, onSwitchFabricator, onOpenAccount, onOpenAlerts, unreadAlertCount }: TopNavProps) {
   return (
     <div
-      className="flex items-center justify-between h-[56px] px-6 bg-[#0d7a6e] shrink-0"
+      className="flex items-center justify-between h-[56px] px-3 sm:px-6 bg-[#0d7a6e] shrink-0"
       style={{ fontFamily: 'Inter, sans-serif' }}
     >
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 sm:gap-5 min-w-0">
         {/* Logo */}
-        <div className="shrink-0 w-[96px] h-[53px] relative overflow-hidden">
+        <div className="shrink-0 w-[64px] sm:w-[96px] h-[35px] sm:h-[53px] relative overflow-hidden">
           <img alt="aSa Software" className="absolute h-full left-0 top-0 max-w-none" style={{ width: '321.1%' }} src={imgLogo} />
         </div>
 
@@ -30,7 +35,7 @@ export function TopNav({ fabricatorName, onHome, onSwitchFabricator, onOpenAccou
         <button
           onClick={onHome}
           title="Dashboard"
-          className="w-8 h-8 flex items-center justify-center rounded-full opacity-90 hover:opacity-100 hover:bg-white/10 transition-colors"
+          className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full opacity-90 hover:opacity-100 hover:bg-white/10 transition-colors"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
             <path d={SVG_HOME} fill="white" />
@@ -40,38 +45,43 @@ export function TopNav({ fabricatorName, onHome, onSwitchFabricator, onOpenAccou
         {/* Fabricator + switch */}
         <button
           onClick={onSwitchFabricator}
-          className="flex items-center gap-2 text-white text-[14px] opacity-90 hover:opacity-100 transition-opacity"
+          className="flex items-center gap-2 text-white text-[14px] opacity-90 hover:opacity-100 transition-opacity min-w-0"
         >
-          <span className="font-medium">{fabricatorName}</span>
-          <span className="text-[12px] underline opacity-80">Switch</span>
+          <span className="font-medium truncate max-w-[110px] sm:max-w-none">{fabricatorName}</span>
+          <span className="hidden sm:inline text-[12px] underline opacity-80 shrink-0">Switch</span>
         </button>
       </div>
 
       {/* Right side: user info + icons */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {/* Avatar */}
         <button
           onClick={onOpenAccount}
           className="flex items-center justify-center w-8 h-8 rounded-full text-[13px] font-semibold text-white shrink-0"
           style={{ backgroundColor: '#095c53', border: '2px solid rgba(255,255,255,0.3)' }}
         >
-          JD
+          {CURRENT_USER_NAME.split(' ').map((n) => n[0]).join('')}
         </button>
 
-        <button onClick={onOpenAccount} className="text-white text-[14px] whitespace-nowrap hover:underline">
-          John Doe
+        <button onClick={onOpenAccount} className="hidden sm:inline text-white text-[14px] whitespace-nowrap hover:underline">
+          {CURRENT_USER_NAME}
         </button>
 
         {/* Bell */}
-        <button className="opacity-85 hover:opacity-100 transition-opacity">
+        <button onClick={onOpenAlerts} title="Alerts" className="relative opacity-85 hover:opacity-100 transition-opacity">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d={SVG_BELL_BODY} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.66667" />
             <path d={SVG_BELL_CLAPPER} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.66667" />
           </svg>
+          {unreadAlertCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-[#c62828] text-white text-[10px] font-medium">
+              {unreadAlertCount}
+            </span>
+          )}
         </button>
 
         {/* Settings */}
-        <button onClick={onOpenAccount} className="opacity-85 hover:opacity-100 transition-opacity">
+        <button onClick={onOpenAccount} className="hidden sm:flex opacity-85 hover:opacity-100 transition-opacity">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d={SVG_GEAR_BODY} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.66667" />
             <path d={SVG_GEAR_CENTER} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.66667" />
@@ -79,11 +89,40 @@ export function TopNav({ fabricatorName, onHome, onSwitchFabricator, onOpenAccou
         </button>
 
         {/* Help */}
-        <button className="opacity-85 hover:opacity-100 transition-opacity">
+        <button title="Help — coming soon" className="hidden sm:flex opacity-85 hover:opacity-100 transition-opacity">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d={SVG_HELP} fill="white" fillOpacity="0.85" />
           </svg>
         </button>
+
+        {/* Mobile overflow menu: Switch / Settings / Help */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="sm:hidden opacity-85 hover:opacity-100 transition-opacity">
+              <MoreVertical size={20} color="white" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-48 p-1">
+            <button
+              onClick={onSwitchFabricator}
+              className="w-full text-left px-3 py-2 rounded-md text-[13px] text-[#1a1a1a] hover:bg-[#f3f4f6] transition-colors"
+            >
+              Switch Fabricator
+            </button>
+            <button
+              onClick={onOpenAccount}
+              className="w-full text-left px-3 py-2 rounded-md text-[13px] text-[#1a1a1a] hover:bg-[#f3f4f6] transition-colors"
+            >
+              Settings
+            </button>
+            <button
+              title="Help — coming soon"
+              className="w-full text-left px-3 py-2 rounded-md text-[13px] text-[#1a1a1a] hover:bg-[#f3f4f6] transition-colors"
+            >
+              Help
+            </button>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );

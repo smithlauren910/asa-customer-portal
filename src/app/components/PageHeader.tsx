@@ -17,8 +17,8 @@ export function PageHeader({
   showFilters = true,
 }: PageHeaderProps) {
   return (
-    <div className="bg-white border-b border-[#d0d0d0] px-6 pt-3 pb-[13px] flex items-center justify-between shrink-0">
-      <h1 className="text-[24px] font-medium text-[#1a1a1a]">{title}</h1>
+    <div className="bg-white border-b border-[#d0d0d0] px-4 sm:px-6 pt-3 pb-[13px] flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between shrink-0">
+      <h1 className="text-[20px] sm:text-[24px] font-medium text-[#1a1a1a]">{title}</h1>
 
       {showFilters && fabricatorId && selectedJob !== undefined && onJobChange && (
         <JobLookup jobs={jobsForFabricator(fabricatorId)} selectedJob={selectedJob} onJobChange={onJobChange} />
