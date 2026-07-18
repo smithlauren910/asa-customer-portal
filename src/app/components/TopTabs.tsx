@@ -18,7 +18,10 @@ const TABS: { id: SectionPage; label: string; moduleKey: 'shipments' | 'invoices
 
 export function TopTabs({ fabricator, activePage, onNavigate, unreadMessageCount }: TopTabsProps) {
   return (
-    <div className="bg-white border-b border-[#e5e7eb] px-6 flex items-center gap-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div
+      className="bg-white border-b border-[#e5e7eb] px-3 sm:px-6 flex items-center gap-1 overflow-x-auto"
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
       {TABS.map((tab) => {
         const enabled = tab.moduleKey ? fabricator.modules[tab.moduleKey] : true;
         const isActive = activePage === tab.id;
@@ -27,7 +30,7 @@ export function TopTabs({ fabricator, activePage, onNavigate, unreadMessageCount
             <span
               key={tab.id}
               title={`${fabricator.name} doesn't have the ${tab.label} module`}
-              className="px-4 py-3 text-[14px] text-[#c8c8c8] cursor-not-allowed select-none"
+              className="px-3 sm:px-4 py-3 text-[14px] text-[#c8c8c8] cursor-not-allowed select-none whitespace-nowrap shrink-0"
             >
               {tab.label}
             </span>
@@ -37,7 +40,7 @@ export function TopTabs({ fabricator, activePage, onNavigate, unreadMessageCount
           <button
             key={tab.id}
             onClick={() => onNavigate(tab.id)}
-            className={`relative px-4 py-3 text-[14px] transition-colors ${
+            className={`relative px-3 sm:px-4 py-3 text-[14px] whitespace-nowrap shrink-0 transition-colors ${
               isActive ? 'text-[#0d7a6e] font-medium' : 'text-[#1a1a1a] hover:text-[#0d7a6e]'
             }`}
           >

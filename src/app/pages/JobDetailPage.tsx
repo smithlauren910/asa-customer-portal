@@ -1,6 +1,8 @@
 import { findJob } from '../data/filters';
 import { getJobFinancials, formatWeight } from '../data/jobFinancials';
 import { formatCurrency } from './InvoicesPage';
+import { BackButton } from '../components/BackButton';
+import { StatusBadge } from '../components/StatusBadge';
 import type { Fabricator } from '../data/fabricators';
 
 interface JobDetailPageProps {
@@ -16,27 +18,17 @@ export function JobDetailPage({ fabricator, jobName, onBack }: JobDetailPageProp
   if (!job) return null;
 
   return (
-    <div className="flex-1 flex flex-col bg-[#f5f5f5] min-h-0 overflow-y-auto p-8" style={{ fontFamily: 'Inter, sans-serif' }}>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-[#0d7a6e] text-[12px] mb-4 hover:underline w-fit">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 12L6 8L10 4" stroke="#0D7A6E" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        Back to Jobs
-      </button>
+    <div className="flex-1 flex flex-col bg-[#f5f5f5] min-h-0 overflow-y-auto p-4 sm:p-8" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <BackButton label="Back to Jobs" onClick={onBack} />
 
       <div className="mb-6 flex items-center gap-3">
         <div>
           <h1 className="text-[24px] font-medium text-[#1f2937]">{job.name}</h1>
           <p className="text-[13px] text-[#6b7280] mt-1">
-            {job.fabricatorJobNumber} · Customer # {job.customerJobNumber}
+            {job.fabricatorJobNumber} · Customer Number {job.customerJobNumber}
           </p>
         </div>
-        <span
-          className="px-2 py-0.5 rounded-sm text-[11px] font-medium text-white capitalize"
-          style={{ backgroundColor: job.status === 'open' ? '#0d7a6e' : '#9ca3af' }}
-        >
-          {job.status}
-        </span>
+        <StatusBadge status={job.status} />
       </div>
 
       {fabricator.modules.jobFinancials ? (
@@ -95,7 +87,7 @@ function ProgressBlock({
       <div className="w-full h-2 rounded-full bg-[#e5e7eb] overflow-hidden mb-5">
         <div className="h-full bg-[#0d7a6e] rounded-full transition-all" style={{ width: `${percent}%` }} />
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map(([label, value]) => (
           <div key={label}>
             <p className="text-[11px] text-[#9ca3af] uppercase tracking-wide">{label}</p>

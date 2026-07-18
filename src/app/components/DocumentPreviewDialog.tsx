@@ -23,16 +23,19 @@ export function DocumentPreviewDialog({ open, onOpenChange, title, documents }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[640px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-4">
+          <div className="pr-8">
             <DialogTitle>{title}</DialogTitle>
-            <button
-              onClick={() => window.print()}
-              className="px-4 py-1.5 rounded-full text-[13px] font-medium text-white bg-[#0d7a6e] hover:bg-[#0b6b60] transition-colors shrink-0"
-            >
-              Print
-            </button>
           </div>
         </DialogHeader>
+
+        <div className="flex justify-end -mt-2">
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-1.5 rounded-full text-[13px] font-medium text-white bg-[#0d7a6e] hover:bg-[#0b6b60] transition-colors shrink-0"
+          >
+            Print
+          </button>
+        </div>
 
         <div className="flex flex-col gap-4">
           {documents.map((doc, i) => (
@@ -44,7 +47,7 @@ export function DocumentPreviewDialog({ open, onOpenChange, title, documents }: 
                 <h3 className="text-[15px] font-medium text-[#1f2937]">{doc.heading}</h3>
               </div>
               {doc.subheading && <p className="text-[12px] text-[#6b7280] mb-3">{doc.subheading}</p>}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-3">
                 {doc.fields.map((f) => (
                   <div key={f.label}>
                     <p className="text-[11px] text-[#9ca3af] uppercase tracking-wide">{f.label}</p>

@@ -18,7 +18,7 @@ export function SelectionPrintBar({
   children,
 }: SelectionPrintBarProps) {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
       <label className="flex items-center gap-2 text-[13px] text-[#374151] cursor-pointer select-none">
         <input
           type="checkbox"
