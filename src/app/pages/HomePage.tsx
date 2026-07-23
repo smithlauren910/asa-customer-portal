@@ -231,13 +231,10 @@ export function HomePage({
                       key={item.id}
                       className="bg-white shadow-sm"
                       style={{
-                        borderTop: '1px solid #d0d0d0',
-                        borderRight: '1px solid #d0d0d0',
-                        borderBottom: '1px solid #d0d0d0',
-                        borderLeft: `6px solid ${timelineBorderColor(item.status)}`,
+                        border: `1px solid ${timelineBorderColor(item.status)}`,
                       }}
                     >
-                      <div className="pl-5 pr-4 py-3">
+                      <div className="px-4 py-3">
                         <div className="flex items-center gap-2 mb-1.5">
                           <StatusBadge status={item.status} />
                           <span className="w-3.5 h-3.5 flex items-center justify-center shrink-0">

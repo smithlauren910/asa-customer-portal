@@ -122,22 +122,22 @@ export function OrdersPage({ fabricatorId, selectedJob, onJobChange, onRequestDe
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* Filters (mobile — desktop filters live in the table header) */}
+        <div className="flex flex-wrap gap-2 mb-4 md:hidden">
           <input
-            className="flex-1 min-w-[140px] max-w-full sm:max-w-[220px] border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] outline-none focus:border-[#0d7a6e]"
+            className="flex-1 min-w-[140px] max-w-full border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] outline-none focus:border-[#0d7a6e]"
             placeholder="Filter job..."
             value={jobFilter}
             onChange={(e) => setJobFilter(e.target.value)}
           />
           <input
-            className="flex-1 min-w-[140px] max-w-full sm:max-w-[220px] border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] outline-none focus:border-[#0d7a6e]"
+            className="flex-1 min-w-[140px] max-w-full border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] outline-none focus:border-[#0d7a6e]"
             placeholder="Filter order..."
             value={orderFilter}
             onChange={(e) => setOrderFilter(e.target.value)}
           />
           <input
-            className="flex-1 min-w-[140px] max-w-full sm:max-w-[220px] border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] outline-none focus:border-[#0d7a6e]"
+            className="flex-1 min-w-[140px] max-w-full border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] outline-none focus:border-[#0d7a6e]"
             placeholder="Filter status..."
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -160,19 +160,52 @@ export function OrdersPage({ fabricatorId, selectedJob, onJobChange, onRequestDe
         </SelectionPrintBar>
 
         {/* Data Table */}
-        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm md:overflow-hidden">
-          <table className="w-full border-collapse block md:table">
+        <div className="md:bg-white md:rounded-lg border-0 md:border md:border-[#e5e7eb] md:shadow-sm md:overflow-hidden">
+          <div className="overflow-x-auto">
+          <table className="w-full md:min-w-[1380px] md:table-fixed border-collapse block md:table">
             <thead className="hidden md:table-header-group">
               <tr className="bg-[#f3f4f6] border-b border-[#e5e7eb]">
                 <th className="px-4 py-2 w-[36px]" />
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[200px]">Job Name</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[130px]">Order Number</th>
-                <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2">Description</th>
+                <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[240px]">Description</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[170px]">Requested Delivery Date</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[110px]">Ship Date</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[100px]">Weight</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[130px]">Order Status</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[260px]">Actions</th>
+              </tr>
+              <tr className="bg-white border-b border-[#e5e7eb]">
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5">
+                  <input
+                    className="w-full border border-[#d1d5db] rounded px-2 py-1 text-[12px] outline-none focus:border-[#0d7a6e]"
+                    placeholder="Filter job..."
+                    value={jobFilter}
+                    onChange={(e) => setJobFilter(e.target.value)}
+                  />
+                </td>
+                <td className="px-2 py-1.5">
+                  <input
+                    className="w-full border border-[#d1d5db] rounded px-2 py-1 text-[12px] outline-none focus:border-[#0d7a6e]"
+                    placeholder="Filter order..."
+                    value={orderFilter}
+                    onChange={(e) => setOrderFilter(e.target.value)}
+                  />
+                </td>
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5">
+                  <input
+                    className="w-full border border-[#d1d5db] rounded px-2 py-1 text-[12px] outline-none focus:border-[#0d7a6e]"
+                    placeholder="Filter status..."
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  />
+                </td>
+                <td className="px-2 py-1.5" />
               </tr>
             </thead>
             <tbody className="block md:table-row-group">
@@ -267,6 +300,7 @@ export function OrdersPage({ fabricatorId, selectedJob, onJobChange, onRequestDe
               )}
             </tbody>
           </table>
+          </div>
 
           <Pagination
             page={safePage}

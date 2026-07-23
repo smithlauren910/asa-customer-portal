@@ -116,22 +116,22 @@ export function ShipmentsPage({ fabricatorId, selectedJob, onJobChange, focusShi
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* Filters (mobile — desktop filters live in the table header) */}
+        <div className="flex flex-wrap gap-2 mb-4 md:hidden">
           <input
-            className="flex-1 min-w-[140px] max-w-full sm:max-w-[220px] border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] text-[#374151] outline-none focus:border-[#0d7a6e]"
+            className="flex-1 min-w-[140px] max-w-full border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] text-[#374151] outline-none focus:border-[#0d7a6e]"
             placeholder="Filter job..."
             value={jobFilter}
             onChange={(e) => setJobFilter(e.target.value)}
           />
           <input
-            className="flex-1 min-w-[140px] max-w-full sm:max-w-[220px] border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] text-[#374151] outline-none focus:border-[#0d7a6e]"
+            className="flex-1 min-w-[140px] max-w-full border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] text-[#374151] outline-none focus:border-[#0d7a6e]"
             placeholder="Filter ticket..."
             value={ticketFilter}
             onChange={(e) => setTicketFilter(e.target.value)}
           />
           <input
-            className="flex-1 min-w-[140px] max-w-full sm:max-w-[220px] border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] text-[#374151] outline-none focus:border-[#0d7a6e]"
+            className="flex-1 min-w-[140px] max-w-full border border-[#d1d5db] rounded px-3 py-1.5 text-[13px] text-[#374151] outline-none focus:border-[#0d7a6e]"
             placeholder="Filter status..."
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -147,8 +147,9 @@ export function ShipmentsPage({ fabricatorId, selectedJob, onJobChange, focusShi
         />
 
         {/* Data Table */}
-        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm md:overflow-hidden">
-          <table className="w-full border-collapse block md:table">
+        <div className="md:bg-white md:rounded-lg border-0 md:border md:border-[#e5e7eb] md:shadow-sm md:overflow-hidden">
+          <div className="overflow-x-auto">
+          <table className="w-full md:min-w-[840px] md:table-fixed border-collapse block md:table">
             <thead className="hidden md:table-header-group">
               <tr className="bg-[#f3f4f6] border-b border-[#e5e7eb]">
                 <th className="px-4 py-2 w-[36px]" />
@@ -157,6 +158,35 @@ export function ShipmentsPage({ fabricatorId, selectedJob, onJobChange, focusShi
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[160px]">Shipment Date</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[120px]">Status</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[80px]">Actions</th>
+              </tr>
+              <tr className="bg-white border-b border-[#e5e7eb]">
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5">
+                  <input
+                    className="w-full border border-[#d1d5db] rounded px-2 py-1 text-[12px] text-[#374151] outline-none focus:border-[#0d7a6e]"
+                    placeholder="Filter job..."
+                    value={jobFilter}
+                    onChange={(e) => setJobFilter(e.target.value)}
+                  />
+                </td>
+                <td className="px-2 py-1.5">
+                  <input
+                    className="w-full border border-[#d1d5db] rounded px-2 py-1 text-[12px] text-[#374151] outline-none focus:border-[#0d7a6e]"
+                    placeholder="Filter ticket..."
+                    value={ticketFilter}
+                    onChange={(e) => setTicketFilter(e.target.value)}
+                  />
+                </td>
+                <td className="px-2 py-1.5" />
+                <td className="px-2 py-1.5">
+                  <input
+                    className="w-full border border-[#d1d5db] rounded px-2 py-1 text-[12px] text-[#374151] outline-none focus:border-[#0d7a6e]"
+                    placeholder="Filter status..."
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  />
+                </td>
+                <td className="px-2 py-1.5" />
               </tr>
             </thead>
             <tbody className="block md:table-row-group">
@@ -212,6 +242,7 @@ export function ShipmentsPage({ fabricatorId, selectedJob, onJobChange, focusShi
               )}
             </tbody>
           </table>
+          </div>
 
           <Pagination
             page={safePage}

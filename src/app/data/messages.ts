@@ -86,6 +86,11 @@ export const THREADS: MessageThread[] = [
   },
 ];
 
+export function markThreadRead(id: string) {
+  const thread = THREADS.find((t) => t.id === id);
+  if (thread) thread.unread = false;
+}
+
 export function addReply(threadId: string, body: string) {
   const thread = THREADS.find((t) => t.id === threadId);
   if (!thread) return;

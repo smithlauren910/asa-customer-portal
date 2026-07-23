@@ -10,12 +10,15 @@ interface JobsPageProps {
   onOpenJob: (jobName: string) => void;
 }
 
-type JobTab = 'Open' | 'Closed';
+type JobTab = 'All' | 'Open' | 'Closed';
 
 export function JobsPage({ fabricatorId, selectedJob, onJobChange, onOpenJob }: JobsPageProps) {
-  const [tab, setTab] = useState<JobTab>('Open');
+  const [tab, setTab] = useState<JobTab>('All');
 
-  const jobs = jobsForFabricator(fabricatorId).filter((j) => (tab === 'Open' ? j.status === 'open' : j.status === 'closed'));
+  const jobs = jobsForFabricator(fabricatorId).filter((j) => {
+    if (tab === 'All') return true;
+    return tab === 'Open' ? j.status === 'open' : j.status === 'closed';
+  });
 
   return (
     <div className="flex-1 flex flex-col bg-[#f5f5f5] min-h-0 overflow-y-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -23,7 +26,7 @@ export function JobsPage({ fabricatorId, selectedJob, onJobChange, onOpenJob }: 
 
       <div className="p-4 sm:p-8">
         <div className="flex gap-2 mb-4">
-          {(['Open', 'Closed'] as JobTab[]).map((t) => (
+          {(['All', 'Open', 'Closed'] as JobTab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -38,12 +41,13 @@ export function JobsPage({ fabricatorId, selectedJob, onJobChange, onOpenJob }: 
           ))}
         </div>
 
-        <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm md:overflow-hidden">
-          <table className="w-full border-collapse block md:table">
+        <div className="md:bg-white md:rounded-lg border-0 md:border md:border-[#e5e7eb] md:shadow-sm md:overflow-hidden">
+          <div className="overflow-x-auto">
+          <table className="w-full md:min-w-[680px] md:table-fixed border-collapse block md:table">
             <thead className="hidden md:table-header-group">
               <tr className="bg-[#f3f4f6] border-b border-[#e5e7eb]">
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[160px]">Fabricator Job Number</th>
-                <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2">Job Name</th>
+                <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[220px]">Job Name</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[180px]">Customer Job Number</th>
                 <th className="text-left text-[13px] font-semibold text-[#374151] px-4 py-2 w-[100px]">Status</th>
               </tr>
@@ -75,13 +79,17 @@ export function JobsPage({ fabricatorId, selectedJob, onJobChange, onOpenJob }: 
               ))}
               {jobs.length === 0 && (
                 <tr className="block md:table-row">
-                  <td colSpan={4} className="block md:table-cell px-4 py-8 text-center text-[13px] text-[#9ca3af]">No {tab.toLowerCase()} jobs.</td>
+                  <td colSpan={4} className="block md:table-cell px-4 py-8 text-center text-[13px] text-[#9ca3af]">
+                    {tab === 'All' ? 'No jobs found.' : `No ${tab.toLowerCase()} jobs.`}
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

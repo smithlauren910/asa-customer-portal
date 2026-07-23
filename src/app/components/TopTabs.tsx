@@ -1,6 +1,7 @@
+import { useEffect, useRef } from 'react';
 import type { Fabricator } from '../data/fabricators';
 
-export type SectionPage = 'orders' | 'shipments' | 'invoices' | 'messages';
+export type SectionPage = 'dashboard' | 'orders' | 'jobs' | 'shipments' | 'invoices' | 'messages';
 
 interface TopTabsProps {
   fabricator: Fabricator;
@@ -10,6 +11,8 @@ interface TopTabsProps {
 }
 
 const TABS: { id: SectionPage; label: string; moduleKey: 'shipments' | 'invoices' | null }[] = [
+  { id: 'dashboard', label: 'Dashboard', moduleKey: null },
+  { id: 'jobs', label: 'Jobs', moduleKey: null },
   { id: 'orders', label: 'Orders', moduleKey: null },
   { id: 'shipments', label: 'Shipments', moduleKey: 'shipments' },
   { id: 'invoices', label: 'Invoices', moduleKey: 'invoices' },
@@ -17,6 +20,12 @@ const TABS: { id: SectionPage; label: string; moduleKey: 'shipments' | 'invoices
 ];
 
 export function TopTabs({ fabricator, activePage, onNavigate, unreadMessageCount }: TopTabsProps) {
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  }, [activePage]);
+
   return (
     <div
       className="bg-white border-b border-[#e5e7eb] px-3 sm:px-6 flex items-center gap-1 overflow-x-auto"
@@ -39,6 +48,7 @@ export function TopTabs({ fabricator, activePage, onNavigate, unreadMessageCount
         return (
           <button
             key={tab.id}
+            ref={isActive ? activeTabRef : undefined}
             onClick={() => onNavigate(tab.id)}
             className={`relative px-3 sm:px-4 py-3 text-[14px] whitespace-nowrap shrink-0 transition-colors ${
               isActive ? 'text-[#0d7a6e] font-medium' : 'text-[#1a1a1a] hover:text-[#0d7a6e]'
