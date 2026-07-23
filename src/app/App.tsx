@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TopNav } from './components/TopNav';
 import { TopTabs, type SectionPage } from './components/TopTabs';
+import { LoginPage } from './pages/LoginPage';
 import { FabricatorSelectionScreen } from './pages/FabricatorSelectionScreen';
 import { HomePage } from './pages/HomePage';
 import { ShipmentsPage } from './pages/ShipmentsPage';
@@ -13,13 +14,14 @@ import { JobDetailPage } from './pages/JobDetailPage';
 import { AccountPage } from './pages/AccountPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { FABRICATORS } from './data/fabricators';
-import { THREADS, addReply, type MessageThread } from './data/messages';
+import { THREADS, addReply, markThreadRead, type MessageThread } from './data/messages';
 import { unreadAlertCount, addAlert, markAlertRead, type Alert } from './data/alerts';
 import { findJob, matchesJob } from './data/filters';
 
 type Section = 'dashboard' | SectionPage | 'account' | 'jobs' | 'job-detail' | 'requested-delivery-date' | 'alerts';
 
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const [fabricatorId, setFabricatorId] = useState<string | null>(null);
   const [section, setSection] = useState<Section>('dashboard');
   const [selectedJob, setSelectedJob] = useState('All Jobs');
@@ -99,6 +101,11 @@ export default function App() {
     setRefreshTick((n) => n + 1);
   };
 
+  const handleOpenThread = (threadId: string) => {
+    markThreadRead(threadId);
+    setRefreshTick((n) => n + 1);
+  };
+
   const handleOpenAlert = (alert: Alert) => {
     markAlertRead(alert.id);
     if (alert.sourceRef) {
@@ -121,6 +128,10 @@ export default function App() {
     setRefreshTick((n) => n + 1);
   };
 
+  if (!loggedIn) {
+    return <LoginPage onLogin={() => setLoggedIn(true)} />;
+  }
+
   if (!fabricator) {
     return <FabricatorSelectionScreen onSelectFabricator={handleSelectFabricator} />;
   }
@@ -135,7 +146,6 @@ export default function App() {
     <div className="flex flex-col min-h-screen w-full" style={{ fontFamily: 'Inter, sans-serif' }}>
       <TopNav
         fabricatorName={fabricator.name}
-        onHome={() => setSection('dashboard')}
         onSwitchFabricator={handleSwitchFabricator}
         onOpenAccount={() => setSection('account')}
         onOpenAlerts={() => setSection('alerts')}
@@ -214,6 +224,7 @@ export default function App() {
             selectedJob={selectedJob}
             onJobChange={setSelectedJob}
             onSendReply={handleSendReply}
+            onOpenThread={handleOpenThread}
             focusThreadId={focusThreadId}
           />
         )}

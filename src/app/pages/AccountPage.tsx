@@ -88,13 +88,10 @@ export function AccountPage() {
       {/* Password Section */}
       <div className="bg-white rounded-lg border border-[#e5e7eb] shadow-sm p-6 max-w-[720px]">
         <h2 className="text-[16px] font-medium text-[#1f2937] mb-1">Password & Security</h2>
-        <p className="text-[13px] text-[#6b7280] mb-4">Manage your password and two-factor authentication settings.</p>
+        <p className="text-[13px] text-[#6b7280] mb-4">Manage your password settings.</p>
         <div className="flex flex-wrap gap-3">
           <button className="px-4 py-2 rounded-full text-[14px] text-[#1a1a1a] border border-[#d0d0d0] hover:border-[#0d7a6e] hover:text-[#0d7a6e] transition-colors">
             Change Password
-          </button>
-          <button className="px-4 py-2 rounded-full text-[14px] text-[#1a1a1a] border border-[#d0d0d0] hover:border-[#0d7a6e] hover:text-[#0d7a6e] transition-colors">
-            Set Up 2FA
           </button>
         </div>
       </div>

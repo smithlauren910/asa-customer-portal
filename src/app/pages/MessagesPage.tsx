@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { BackButton } from '../components/BackButton';
 import { THREADS, type MessageThread } from '../data/messages';
@@ -9,10 +9,11 @@ interface MessagesPageProps {
   selectedJob: string;
   onJobChange: (job: string) => void;
   onSendReply: (thread: MessageThread, body: string) => void;
+  onOpenThread: (threadId: string) => void;
   focusThreadId?: string;
 }
 
-export function MessagesPage({ fabricatorId, selectedJob, onJobChange, onSendReply, focusThreadId }: MessagesPageProps) {
+export function MessagesPage({ fabricatorId, selectedJob, onJobChange, onSendReply, onOpenThread, focusThreadId }: MessagesPageProps) {
   const [openThreadId, setOpenThreadId] = useState<string | null>(focusThreadId ?? null);
   const [replyText, setReplyText] = useState('');
 
@@ -21,6 +22,13 @@ export function MessagesPage({ fabricatorId, selectedJob, onJobChange, onSendRep
   );
 
   const openThread = threads.find((t) => t.id === openThreadId);
+
+  // onOpenThread is intentionally omitted from deps — it's a new function identity on every
+  // App render, and including it would re-fire this effect (and setRefreshTick) in a loop.
+  useEffect(() => {
+    if (openThreadId) onOpenThread(openThreadId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openThreadId]);
 
   const handleSend = () => {
     if (!openThread || !replyText.trim()) return;
@@ -31,7 +39,7 @@ export function MessagesPage({ fabricatorId, selectedJob, onJobChange, onSendRep
   if (openThread) {
     return (
       <div className="flex-1 flex flex-col bg-[#f5f5f5] min-h-0" style={{ fontFamily: 'Inter, sans-serif' }}>
-        <PageHeader title="Messages" fabricatorId={fabricatorId} selectedJob={selectedJob} onJobChange={onJobChange} />
+        <PageHeader title="Messages" showFilters={false} />
         <div className="flex-1 flex flex-col min-h-0 px-8 pt-6 pb-8">
           <BackButton label="Back to Messages" onClick={() => setOpenThreadId(null)} />
 
